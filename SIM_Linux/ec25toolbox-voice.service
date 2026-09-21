@@ -1,0 +1,24 @@
+[Unit]
+Description=EC25 Toolbox cellular call and SMS gateway
+After=network-online.target ec25toolbox-linux.service
+Wants=network-online.target ec25toolbox-linux.service
+
+[Service]
+Type=simple
+User=ec25toolbox
+Group=ec25toolbox
+SupplementaryGroups=dialout
+RuntimeDirectory=ec25toolbox-asterisk
+RuntimeDirectoryMode=0750
+ExecStartPre=+/opt/ec25toolbox/ec25toolbox-linux --config /etc/ec25toolbox/config.toml --bind-option-driver
+ExecStart=/opt/ec25toolbox/ec25toolbox-linux --config /etc/ec25toolbox/config.toml --run-asterisk
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/ec25toolbox /run/ec25toolbox-asterisk /run/lock
+
+[Install]
+WantedBy=multi-user.target

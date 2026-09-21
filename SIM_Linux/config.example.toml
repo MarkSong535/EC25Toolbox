@@ -1,0 +1,132 @@
+# EC25 Toolbox Linux uses this one file for every runtime setting.
+# Install it as /etc/ec25toolbox/config.toml and restrict it to the service user.
+
+[portal]
+enabled = false
+auth_mode = "access_jwt" # "tunnel" delegates authentication entirely to your Access-protected tunnel.
+origin = "https://phone.markso.ng"
+port = 9561 # HTTP on 127.0.0.1 only; cloudflared must run on this same Pi.
+team_domain = "" # Your team.cloudflareaccess.com, no https:// prefix.
+audience = "" # Access application AUD tag.
+allowed_emails = [] # Exact human identities, also allowed by the Access policy.
+sends_per_hour = 20
+sends_per_day = 100
+
+[archive]
+enabled = false # Enable after authenticating the official Proton CLI as ec25toolbox.
+remote_path = "/my-files/RPI-SMS"
+binary = "/usr/local/bin/proton-drive"
+interval_hours = 24
+max_archive_mb = 64
+
+[service]
+log_level = "INFO"
+database_path = "/var/lib/ec25toolbox/events.sqlite3"
+reconnect_seconds = 5
+reconcile_seconds = 300
+
+[modem]
+# "auto" probes each candidate for an AT response. It does not require or alter
+# any USB vendor/product ID. Set an explicit /dev path only when desired.
+port = "auto"
+baudrate = 115200
+candidate_globs = [
+  "/dev/serial/by-id/*",
+  "/dev/ttyUSB*",
+  "/dev/ttyACM*",
+]
+probe_timeout_seconds = 2
+command_timeout_seconds = 8
+exclusive = true
+# If no tty device appears, copy the dongle's CURRENT vvvv:pppp value from
+# `lsusb` into this list. Linux then binds only the listed likely AT interfaces
+# to its serial option driver. This does not rewrite the dongle's VID/PID.
+bind_option_driver = true
+option_driver_ids = [] # Example: ["vvvv:pppp"]
+option_driver_interfaces = [2, 3]
+
+[sms]
+enabled = true
+storages = ["ME", "SM"]
+# Prevent a new installation from emailing every message already on the SIM.
+forward_existing_on_first_start = false
+delete_after_forward = true
+
+[calls]
+mode = "reject" # reject, observe, or bridge
+reject = true # Used only when mode="reject".
+# Zero rejects on the first RING. A short delay may allow +CLIP caller ID to
+# arrive first, at the cost of slower rejection.
+reject_delay_ms = 0
+send_email = true
+
+[voice]
+# When enabled, the dedicated Asterisk instance plus chan_quectel becomes the
+# single owner of calls and SMS. No external VoIP provider is involved: SIP is
+# used only between this Linux host and your phone app.
+enabled = false
+asterisk_binary = "/usr/sbin/asterisk"
+modem_name = "quectel0"
+# Persistent path confirmed for this BAIWANG/DJI dongle.
+data_port = "/dev/serial/by-id/usb-BAIWANG_Baiwang-if02-port0"
+# "serial" uses the EC25 voice PCM serial interface. "uac" uses USB Audio.
+audio_mode = "serial"
+audio_port = "/dev/serial/by-id/usb-BAIWANG_Baiwang-if01-port0"
+alsa_device = "hw:CARD=Android,DEV=0"
+rx_gain = 0
+tx_gain = 0
+ring_seconds = 30
+
+# Register Linphone with these credentials. Plain SIP is never generated.
+# server_name must resolve to this gateway and must appear in the SAN of a
+# publicly trusted certificate. The service user must be able to read both files.
+sip_username = "ec25phone"
+sip_password = "CHANGE_ME_TO_A_LONG_RANDOM_PASSWORD"
+server_name = "phone.example.com"
+sip_bind = "0.0.0.0:5061"
+tls_cert_file = "/etc/ec25toolbox/tls/fullchain.pem"
+tls_private_key_file = "/etc/ec25toolbox/tls/privkey.pem"
+# Set this to the router's public IP when Asterisk is behind NAT, or leave it
+# empty when the gateway itself owns the public address.
+external_address = ""
+rtp_start = 10000
+rtp_end = 10100
+max_contacts = 5
+codecs = ["ulaw", "alaw"]
+# A roaming phone has changing public addresses. Restrict this list when your
+# client has a stable source; otherwise TLS, SRTP, Digest auth, a strong random
+# password, firewall rate limits, and log-based blocking are mandatory.
+permitted_networks = [
+  "0.0.0.0/0",
+]
+
+[acme]
+# Uses a Cloudflare DNS-01 challenge. The Pi needs outbound HTTPS only; ports
+# 80 and 443 do not need to be open. Keep the API token in the referenced
+# root-only file rather than placing a reusable secret in this TOML document.
+enabled = false
+email = "admin@example.com"
+credentials_file = "/etc/ec25toolbox/cloudflare.ini"
+propagation_seconds = 30
+# Staging certificates are intentionally untrusted; use only while testing.
+staging = false
+
+[smtp]
+enabled = true
+host = "smtp.protonmail.ch"
+port = 587
+# Proton SMTP submission uses STARTTLS on 587. In this program, "tls" means
+# implicit TLS and is therefore not the correct value for this Proton endpoint.
+security = "starttls"
+# Generate a dedicated token in Proton Mail: Settings > All settings >
+# IMAP/SMTP > SMTP tokens. Do not use the normal Proton account password.
+username = "sender@your-domain.example"
+password = "SMTP_TOKEN"
+from_address = "sender@your-domain.example"
+from_name = "RPI SMS"
+to_addresses = ["recipient@example.com"]
+# Used for call-event email only. SMS subjects are exactly the sender number.
+subject_prefix = "[EC25]"
+timeout_seconds = 20
+retry_min_seconds = 30
+retry_max_seconds = 3600

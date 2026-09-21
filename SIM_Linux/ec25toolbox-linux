@@ -1,0 +1,4 @@
+#!/usr/bin/env python3
+from ec25toolbox_linux.daemon import main
+
+raise SystemExit(main())

@@ -1,0 +1,54 @@
+diff --git a/at_response.c b/at_response.c
+index 3a357d1..e87a97f 100644
+--- a/at_response.c
++++ b/at_response.c
+@@ -1427,6 +1427,16 @@ static int at_response_cmti (struct pvt* pvt, const char* str)
+ 	if (index > -1)
+ 	{
+ 		ast_debug (1, "[%s] Incoming SMS message\n", PVT_ID(pvt));
++		if (!PVT_NO_CHANS(pvt))
++		{
++			if (!sms_inbox_set(pvt, index))
++			{
++				ast_log(LOG_ERROR, "[%s] Cannot defer incoming SMS index %d\n", PVT_ID(pvt), index);
++				return -1;
++			}
++			ast_verb(2, "[%s] Deferring incoming SMS index %d until the active call ends\n", PVT_ID(pvt), index);
++			return 0;
++		}
+ 
+ 		if (at_enqueue_retrieve_sms(&pvt->sys_chan, index, SUPPRESS_ERROR_DISABLED))
+ 		{
+@@ -1468,6 +1478,16 @@ static int at_response_cdsi (struct pvt* pvt, const char* str)
+ 	if (index > -1)
+ 	{
+ 		ast_debug (1, "[%s] Incoming SMS message\n", PVT_ID(pvt));
++		if (!PVT_NO_CHANS(pvt))
++		{
++			if (!sms_inbox_set(pvt, index))
++			{
++				ast_log(LOG_ERROR, "[%s] Cannot defer incoming status report index %d\n", PVT_ID(pvt), index);
++				return -1;
++			}
++			ast_verb(2, "[%s] Deferring incoming status report index %d until the active call ends\n", PVT_ID(pvt), index);
++			return 0;
++		}
+ 
+ 		if (at_enqueue_retrieve_sms(&pvt->sys_chan, index, SUPPRESS_ERROR_DISABLED))
+ 		{
+diff --git a/cpvt.c b/cpvt.c
+index 7d326e6..ede00fb 100644
+--- a/cpvt.c
++++ b/cpvt.c
+@@ -111,6 +111,11 @@ EXPORT_DEF void cpvt_free(struct cpvt* cpvt)
+ 
+ 	if(PVT_NO_CHANS(pvt)) {
+ 		pvt_on_remove_last_channel(pvt);
++		/* Reading SMS while voice commands are active can corrupt the modem
++		 * command queue. CMTI/CDSI handlers retain those indexes in the inbox;
++		 * start retrieval only after the last call channel has gone away. */
++		if (pvt->incoming_sms_index == -1U)
++			at_retrieve_next_sms(&pvt->sys_chan, SUPPRESS_ERROR_DISABLED);
+ 		pvt_try_restate(pvt);
+ 		}
+ 

@@ -1,0 +1,6 @@
+# Keep ModemManager from claiming this BAIWANG/DJI EC25. chan_quectel is the
+# sole modem owner while voice bridging is enabled.
+ACTION!="remove", SUBSYSTEM=="tty", ATTRS{idVendor}=="2ca3", ATTRS{idProduct}=="4006", ENV{ID_MM_DEVICE_IGNORE}="1"
+
+# Re-run the root-only, centrally configured binder as USB interfaces appear.
+ACTION=="add", SUBSYSTEM=="usb", RUN+="/opt/ec25toolbox/ec25toolbox-linux --config /etc/ec25toolbox/config.toml --bind-option-driver"

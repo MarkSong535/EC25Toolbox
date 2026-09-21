@@ -1,0 +1,22 @@
+[Unit]
+Description=EC25 Toolbox Linux SMS and call forwarding
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ec25toolbox
+Group=ec25toolbox
+SupplementaryGroups=dialout
+ExecStartPre=+/opt/ec25toolbox/ec25toolbox-linux --config /etc/ec25toolbox/config.toml --bind-option-driver
+ExecStart=/opt/ec25toolbox/ec25toolbox-linux --config /etc/ec25toolbox/config.toml
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/ec25toolbox
+
+[Install]
+WantedBy=multi-user.target

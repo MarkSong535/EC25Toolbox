@@ -1,0 +1,13 @@
+[Unit]
+Description=Renew EC25 Toolbox SIP TLS certificate using ACME DNS-01
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/ec25toolbox/ec25toolbox-acme renew
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/etc/letsencrypt /etc/ec25toolbox/tls /var/lib/letsencrypt /var/log/letsencrypt

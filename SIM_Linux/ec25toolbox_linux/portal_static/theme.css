@@ -1,0 +1,27 @@
+/* Colors from marksong.tech: #204560 primary, #202124 dark background. */
+:root{color-scheme:light dark;--page:#fff;--side:#f7f8fa;--ink:#25272b;--muted:#6c737c;--line:#e3e6eb;--primary:#204560;--accent:#306e9b;--selection:#e6edf4;--received:#f0f2f5;--sent:#e3edf7;--field:#fafbfc;font-family:"Open Sans",Helvetica,Arial,sans-serif;color:var(--ink);background:var(--page)}
+body,main,.workspace{background:var(--page);color:var(--ink)}
+aside{background:var(--side);border-color:var(--line)}
+.primary{background:var(--primary);border-radius:5px}
+.primary:hover{background:#306e9b}
+#send{display:inline-flex;align-items:center;justify-content:center;gap:5px}
+#send svg{flex:none}
+.composer-footer{justify-content:flex-end}
+input,textarea{color:var(--ink);background:var(--page);border-color:var(--line);border-radius:5px}
+.contact{color:var(--ink);border-radius:5px}
+.contact:hover,.contact.selected{background:var(--selection)}
+.contact p,.meta,#subtitle,.search-label,.log-help,.login-entry small{color:var(--muted)}
+.conversation-heading,.audit-entry,.login-entry{border-color:var(--line)}
+.quiet{border-color:var(--line);color:var(--accent);border-radius:5px}
+.quiet:hover{background:var(--selection)}
+.bubble{background:var(--received);border-radius:8px 8px 8px 2px}
+.out .bubble{background:var(--sent);border-radius:8px 8px 2px 8px}
+#compose{background:var(--field);border-color:var(--line);border-radius:6px}
+#compose label,#send-help,.empty{color:var(--muted)}
+#recipient,textarea{background:transparent}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #2695e5}
+.archive-link{font-weight:700;color:#306e9b;text-decoration:none}
+.archive-link:hover{color:#2695e5;text-decoration:underline}
+.archive-link:focus-visible{outline:2px solid #2695e5;text-decoration:underline}
+@media(prefers-color-scheme:dark){.archive-link{color:#28597c}.archive-link:hover{color:#2d71a1}.archive-link:focus-visible{outline-color:#2d71a1}}
+@media(prefers-color-scheme:dark){:root{--page:#202124;--side:#25262a;--ink:#edf0f4;--muted:#a8afb9;--line:#383c43;--primary:#204560;--accent:#79aed5;--selection:#293d50;--received:#2c2e33;--sent:#273e54;--field:#24262a}#notice{color:#deb77e}}

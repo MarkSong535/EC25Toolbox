@@ -1,0 +1,19 @@
+[Unit]
+Description=Upload and verify EC25 SMS and log archive in Proton Drive
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ec25toolbox
+Group=ec25toolbox
+WorkingDirectory=/var/lib/ec25toolbox
+ExecStart=/opt/ec25toolbox/venv/bin/python -m ec25toolbox_linux.archive --config /etc/ec25toolbox/config.toml
+Environment=PYTHONPATH=/opt/ec25toolbox
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/ec25toolbox
+TimeoutStartSec=15min

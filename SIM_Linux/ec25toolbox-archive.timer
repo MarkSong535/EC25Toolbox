@@ -1,0 +1,10 @@
+[Unit]
+Description=Check central EC25 archive schedule hourly
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=1h
+Unit=ec25toolbox-archive.service
+
+[Install]
+WantedBy=timers.target

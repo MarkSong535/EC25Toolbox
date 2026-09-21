@@ -1,0 +1,3 @@
+# Unified diff context includes required leading spaces before upstream tabs
+# and blank context lines. Preserve patch bytes; do not auto-trim them.
+patches/*.patch -whitespace

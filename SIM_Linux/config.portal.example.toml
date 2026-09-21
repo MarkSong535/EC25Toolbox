@@ -1,0 +1,68 @@
+# Alternative starter for /etc/ec25toolbox/config.toml; not an additional config.
+# Replace SMTP placeholders and protect the entire hostname with Access first.
+[service]
+log_level = "INFO"
+database_path = "/var/lib/ec25toolbox/events.sqlite3"
+reconnect_seconds = 5
+reconcile_seconds = 300
+
+[modem]
+port = "/dev/serial/by-id/usb-BAIWANG_Baiwang-if02-port0"
+baudrate = 115200
+exclusive = true
+bind_option_driver = true
+option_driver_ids = []
+option_driver_interfaces = [2, 3]
+
+[sms]
+enabled = true
+storages = ["ME", "SM"]
+forward_existing_on_first_start = false
+delete_after_forward = true
+
+[calls]
+mode = "reject"
+reject = true
+reject_delay_ms = 0
+send_email = true
+
+[voice]
+enabled = false
+
+[acme]
+enabled = false
+
+[smtp]
+enabled = true
+host = "smtp.protonmail.ch"
+port = 587
+security = "starttls"
+username = "sender@your-domain.example"
+password = "SMTP_TOKEN"
+from_address = "sender@your-domain.example"
+from_name = "RPI SMS"
+to_addresses = ["recipient@example.com"]
+subject_prefix = "[EC25]" # Calls only; SMS subject is exactly the sender number.
+timeout_seconds = 20
+retry_min_seconds = 30
+retry_max_seconds = 3600
+
+[portal]
+enabled = true
+# Requires Access enforcement at the Tunnel edge; NOT standalone authentication.
+auth_mode = "tunnel"
+origin = "https://phone.markso.ng"
+port = 9561
+sends_per_hour = 20
+sends_per_day = 100
+# For independent JWT verification, change auth_mode to access_jwt and supply:
+# team_domain = "YOUR-TEAM.cloudflareaccess.com"
+# audience = "YOUR-APPLICATION-AUD"
+# allowed_emails = ["operator@example.com"]
+
+[archive]
+enabled = false
+remote_path = "/my-files/RPI-SMS"
+binary = "/usr/local/bin/proton-drive"
+interval_hours = 24
+max_archive_mb = 64
